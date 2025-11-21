@@ -33,9 +33,17 @@ frontend/.env.production.local
 *.swn
 .DS_Store
 
-# Environment
+# Environment - IMPORTANT: Never commit API keys
 .env
 .env.local
+backend/.env
+backend/.env.local
+
+# Database
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
 
 # Logs
 *.log
@@ -49,3 +57,17 @@ htmlcov/
 # OS
 Thumbs.db
 .DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# PDF Reports (generated dynamically)
+*.pdf
+
+# Python virtual environments
+backend/venv/
+backend/env/
+backend/ENV/

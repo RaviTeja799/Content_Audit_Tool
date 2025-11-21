@@ -56,17 +56,23 @@ class SERPAnalyzer:
         if competitor_data['with_lists'] > 60 and not current_elements['has_lists']:
             issues.append("No bullet/numbered lists (most top rankers use them)")
             recommendations.append("Add bullet lists for scannable content")
+            
+        # Analyze Backlink Potential
+        backlink_potential = self._analyze_backlink_potential(text, current_elements)
+        if backlink_potential['score'] < 50:
+            issues.append("Low backlink potential (content lacks linkable assets)")
+            recommendations.append("Add linkable assets: original data, unique definitions, or expert quotes")
         
         # Predict ranking position
         predicted_position = self._predict_ranking(
             current_word_count, avg_word_count,
             len(current_topics), len(competitor_data['common_topics']),
-            current_elements, competitor_data
+            current_elements, competitor_data, backlink_potential
         )
         
         # Calculate score
         score = self._calculate_serp_score(
-            word_count_diff, missing_topics, current_elements, competitor_data, predicted_position
+            word_count_diff, missing_topics, current_elements, competitor_data, predicted_position, backlink_potential
         )
         
         return {
@@ -84,6 +90,7 @@ class SERPAnalyzer:
                     'images': f"{competitor_data['with_images']}%"
                 }
             },
+            'backlink_potential': backlink_potential,
             'predicted_position': predicted_position,
             'issues': issues,
             'recommendations': recommendations[:3],
@@ -185,76 +192,87 @@ class SERPAnalyzer:
             'has_quotes': has_quotes
         }
     
-    def _predict_ranking(self, current_wc, avg_wc, current_topics, avg_topics, current_elements, competitor_data):
+    def _predict_ranking(self, current_wc, avg_wc, current_topics, avg_topics, current_elements, competitor_data, backlink_potential=None):
         """Predict ranking position based on content analysis"""
         score = 0
         
-        # Word count comparison (30 points)
+        # Word count comparison (25 points)
         wc_ratio = current_wc / avg_wc if avg_wc > 0 else 0
         if wc_ratio >= 0.9:
-            score += 30
+            score += 25
         elif wc_ratio >= 0.7:
-            score += 20
+            score += 15
         elif wc_ratio >= 0.5:
-            score += 10
+            score += 5
         
-        # Topic coverage (30 points)
+        # Topic coverage (25 points)
         topic_ratio = current_topics / avg_topics if avg_topics > 0 else 0
         if topic_ratio >= 0.8:
-            score += 30
+            score += 25
         elif topic_ratio >= 0.6:
-            score += 20
+            score += 15
         elif topic_ratio >= 0.4:
-            score += 10
+            score += 5
         
-        # Content elements (40 points)
+        # Content elements (30 points)
         if current_elements['has_comparison'] and competitor_data['with_comparisons'] > 50:
             score += 10
         if current_elements['data_points'] >= 5:
             score += 10
         if current_elements['has_lists']:
-            score += 10
+            score += 5
         if current_elements['has_quotes']:
-            score += 10
+            score += 5
+            
+        # Backlink Potential (20 points)
+        if backlink_potential:
+            if backlink_potential['score'] > 70:
+                score += 20
+            elif backlink_potential['score'] > 40:
+                score += 10
         
         # Predict position range
-        if score >= 75:
-            return "Page 1 (positions 1-5)"
-        elif score >= 55:
-            return "Page 1 (positions 6-10)"
-        elif score >= 35:
+        if score >= 80:
+            return "Page 1 (positions 1-3)"
+        elif score >= 60:
+            return "Page 1 (positions 4-10)"
+        elif score >= 40:
             return "Page 2 (positions 11-20)"
         else:
             return "Page 3+ (positions 21+)"
     
-    def _calculate_serp_score(self, wc_diff, missing_topics, current_elements, competitor_data, predicted_position):
+    def _calculate_serp_score(self, wc_diff, missing_topics, current_elements, competitor_data, predicted_position, backlink_potential=None):
         """Calculate SERP performance score (0-100)"""
         score = 100
         
         # Word count penalty
         if wc_diff < -50:
-            score -= 30
+            score -= 25
         elif wc_diff < -30:
-            score -= 20
+            score -= 15
         elif wc_diff < -15:
-            score -= 10
+            score -= 5
         
         # Topic coverage penalty
         if len(missing_topics) > 5:
-            score -= 25
+            score -= 20
         elif len(missing_topics) > 3:
-            score -= 15
+            score -= 10
         elif len(missing_topics) > 1:
-            score -= 8
+            score -= 5
         
         # Content elements penalty
         if competitor_data['with_comparisons'] > 70 and not current_elements['has_comparison']:
-            score -= 15
-        
-        if current_elements['data_points'] < 3:
             score -= 10
         
+        if current_elements['data_points'] < 3:
+            score -= 5
+        
         if not current_elements['has_lists']:
+            score -= 5
+            
+        # Backlink potential penalty
+        if backlink_potential and backlink_potential['score'] < 40:
             score -= 10
         
         return max(0, score)
@@ -269,4 +287,45 @@ class SERPAnalyzer:
             'issues': ['No target keyword provided - cannot analyze SERP performance'],
             'recommendations': ['Provide a target keyword to analyze SERP competition'],
             'missing_topics': []
+        }
+    
+    def _analyze_backlink_potential(self, text, current_elements):
+        """Analyze potential for attracting backlinks"""
+        score = 0
+        assets = []
+        
+        # Check for original data/stats
+        if current_elements['data_points'] >= 5:
+            score += 30
+            assets.append("Original Data/Stats")
+        elif current_elements['data_points'] >= 3:
+            score += 15
+            
+        # Check for definitions ("is defined as", "refers to")
+        if re.search(r'\b(is defined as|refers to|means)\b', text.lower()):
+            score += 20
+            assets.append("Definitional Content")
+            
+        # Check for comparisons
+        if current_elements['has_comparison']:
+            score += 20
+            assets.append("Comparison/Review")
+            
+        # Check for quotes
+        if current_elements['has_quotes']:
+            score += 15
+            assets.append("Expert Quotes")
+            
+        # Check for length (long-form content gets more links)
+        word_count = len(text.split())
+        if word_count > 2000:
+            score += 15
+            assets.append("Long-form Guide")
+        elif word_count > 1000:
+            score += 10
+            
+        return {
+            'score': min(100, score),
+            'level': 'High' if score > 70 else 'Medium' if score > 40 else 'Low',
+            'linkable_assets': assets
         }
