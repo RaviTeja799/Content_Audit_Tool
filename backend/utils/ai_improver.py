@@ -251,8 +251,10 @@ Provide an improved version that:
 
 Improved version:"""
 
+        # Try Groq first
         if self.groq_client:
             try:
+                print(f"Calling Groq API for rewrite with goal: {improvement_goal}")
                 response = self.groq_client.chat.completions.create(
                     model="llama-3.1-70b-versatile",
                     messages=[
@@ -263,11 +265,43 @@ Improved version:"""
                     temperature=0.7
                 )
                 
-                return response.choices[0].message.content.strip()
+                rewritten = response.choices[0].message.content.strip()
+                print(f"Groq rewrite successful, generated {len(rewritten)} chars")
+                return rewritten
             
             except Exception as e:
-                print(f"Rewrite error: {str(e)}")
+                print(f"Groq rewrite error: {str(e)}")
+        else:
+            print("Groq client not initialized - API key missing or invalid")
         
+        # Try Gemini fallback
+        if self.gemini_api_key:
+            try:
+                print(f"Trying Gemini API for rewrite...")
+                response = requests.post(
+                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.gemini_api_key}',
+                    json={
+                        'contents': [{
+                            'parts': [{'text': prompt}]
+                        }]
+                    },
+                    timeout=30
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    rewritten = data['candidates'][0]['content']['parts'][0]['text'].strip()
+                    print(f"Gemini rewrite successful, generated {len(rewritten)} chars")
+                    return rewritten
+                else:
+                    print(f"Gemini API error: {response.status_code} - {response.text}")
+            
+            except Exception as e:
+                print(f"Gemini rewrite error: {str(e)}")
+        else:
+            print("Gemini API key not configured")
+        
+        print("WARNING: All AI APIs failed, returning original text")
         return original_text  # Return original if AI fails
     
     def generate_missing_section(self, topic, context, target_keyword=""):
