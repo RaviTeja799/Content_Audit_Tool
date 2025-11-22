@@ -181,7 +181,7 @@ Keep suggestions concise and practical."""
         if self.gemini_api_key:
             try:
                 response = requests.post(
-                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={self.gemini_api_key}',
+                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.gemini_api_key}',
                     json={
                         'contents': [{
                             'parts': [{'text': prompt}]
@@ -294,7 +294,7 @@ Improved version:"""
             try:
                 print(f"Trying Gemini API for rewrite...")
                 response = requests.post(
-                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={self.gemini_api_key}',
+                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.gemini_api_key}',
                     json={
                         'contents': [{
                             'parts': [{'text': prompt}]
