@@ -12,13 +12,21 @@ class AIContentImprover:
         
         if self.groq_api_key:
             try:
+                print(f"Initializing Groq client with API key (length: {len(self.groq_api_key)})")
                 self.groq_client = Groq(api_key=self.groq_api_key)
+                print("Groq client initialized successfully")
             except Exception as e:
                 print(f"Failed to initialize Groq client: {str(e)}")
                 self.groq_client = None
+        else:
+            print("GROQ_API_KEY environment variable not found or empty")
         
         # Gemini API (Backup)
         self.gemini_api_key = os.getenv('GEMINI_API_KEY', '')
+        if self.gemini_api_key:
+            print(f"Gemini API key found (length: {len(self.gemini_api_key)})")
+        else:
+            print("GEMINI_API_KEY environment variable not found or empty")
     
     def analyze_and_suggest(self, content, analysis_results):
         """
