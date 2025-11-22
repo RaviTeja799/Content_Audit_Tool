@@ -71,3 +71,8 @@ Thumbs.db
 backend/venv/
 backend/env/
 backend/ENV/
+
+# Documentation backup files
+README_OLD.md
+SUBMISSION_CHECKLIST.md
+VERCEL_DEPLOYMENT.md
