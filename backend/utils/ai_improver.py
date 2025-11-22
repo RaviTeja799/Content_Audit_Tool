@@ -8,7 +8,14 @@ class AIContentImprover:
     def __init__(self):
         # Groq API (Fast inference with Llama models)
         self.groq_api_key = os.getenv('GROQ_API_KEY', '')
-        self.groq_client = Groq(api_key=self.groq_api_key) if self.groq_api_key else None
+        self.groq_client = None
+        
+        if self.groq_api_key:
+            try:
+                self.groq_client = Groq(api_key=self.groq_api_key)
+            except Exception as e:
+                print(f"Failed to initialize Groq client: {str(e)}")
+                self.groq_client = None
         
         # Gemini API (Backup)
         self.gemini_api_key = os.getenv('GEMINI_API_KEY', '')
