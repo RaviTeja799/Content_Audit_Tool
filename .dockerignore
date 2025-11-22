@@ -1,0 +1,36 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+
+# Ignore frontend (not needed for backend deployment)
+frontend/
+
+# Ignore documentation
+*.md
+LICENSE
+
+# Ignore config files
+.gitignore
+.env.example
+
+# Ignore deployment configs for other platforms
+render.yaml
+vercel.json
+api/
+
+# Ignore data and databases (will be recreated)
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Keep only essential backend files
+!backend/
+!Dockerfile
+!railway.json
