@@ -12,7 +12,8 @@ import SchemaMarkup from './components/SchemaMarkup';
 import AdminPanel from './components/AdminPanel';
 import './App.css';
 
-const API_URL = 'http://localhost:5000';
+// Use environment variable or fallback to relative path for Vercel
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 function App() {
   const [results, setResults] = useState(null);
