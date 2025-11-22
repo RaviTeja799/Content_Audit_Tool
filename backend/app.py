@@ -33,6 +33,28 @@ from utils.share_link_manager import ShareLinkManager
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/')
+def root():
+    """Root endpoint - shows API info and available routes"""
+    return jsonify({
+        "message": "Content Quality Audit Tool API",
+        "version": "1.0.0",
+        "status": "online",
+        "endpoints": {
+            "health": "/api/health",
+            "analyze": "/api/analyze",
+            "batch_analyze": "/api/batch-analyze",
+            "history": "/api/history",
+            "ai_suggestions": "/api/ai-suggestions",
+            "keyword_research": "/api/keyword-research",
+            "content_comparison": "/api/content-comparison",
+            "schema_markup": "/api/schema-markup",
+            "export_pdf": "/api/export-pdf",
+            "share_link": "/api/share-link"
+        },
+        "docs": "https://github.com/RaviTeja799/Content_Audit_Tool"
+    })
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy", "message": "Content Audit API is running"})
