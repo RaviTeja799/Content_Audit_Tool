@@ -159,7 +159,14 @@ React 18.2.0
 Content_Audit_Tool/                    (Root)
 ├── backend/                           (673 MB)
 │   ├── analyzers/                     (9 modules)
-│   ├── utils/                         (6 utilities)
+│   ├── utils/                         (7 utilities)
+│   │   ├── text_extractor.py
+│   │   ├── serp_scraper.py
+│   │   ├── pdf_generator.py
+│   │   ├── history_tracker.py
+│   │   ├── ai_improver.py
+│   │   ├── share_link_manager.py
+│   │   └── clear_data.py
 │   ├── data/                          (SQLite DBs)
 │   ├── venv/                          (~500 MB)
 │   └── requirements.txt               (20 packages)
@@ -174,7 +181,6 @@ Content_Audit_Tool/                    (Root)
 │   ├── CONTRIBUTING.md
 │   └── PROJECT_INFO.md (this file)
 └── Utilities/
-    ├── clear_data.py
     ├── setup.bat
     ├── start-backend.bat
     └── start-frontend.bat
