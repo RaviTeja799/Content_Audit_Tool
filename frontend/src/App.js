@@ -12,8 +12,8 @@ import SchemaMarkup from './components/SchemaMarkup';
 import AdminPanel from './components/AdminPanel';
 import './App.css';
 
-// Use environment variable or fallback to relative path for Vercel
-const API_URL = process.env.REACT_APP_API_URL || '/api';
+// Use environment variable or fallback to Railway deployment
+const API_URL = process.env.REACT_APP_API_URL || 'https://contentaudittool-production.up.railway.app';
 
 function App() {
   const [results, setResults] = useState(null);

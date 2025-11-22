@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function HistoryDashboard() {
@@ -12,9 +13,9 @@ function HistoryDashboard() {
     setLoading(true);
     try {
       const [historyRes, progressRes, statsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/history', { params: { limit: 10 } }),
-        axios.get('http://localhost:5000/api/history/progress', { params: { days: 30 } }),
-        axios.get('http://localhost:5000/api/history/statistics')
+        axios.get(`${API_URL}/api/history`, { params: { limit: 10 } }),
+        axios.get(`${API_URL}/api/history/progress`, { params: { days: 30 } }),
+        axios.get(`${API_URL}/api/history/statistics`)
       ]);
 
       setHistory(historyRes.data);

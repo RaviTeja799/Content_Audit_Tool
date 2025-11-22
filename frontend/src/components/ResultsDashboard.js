@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ScoreCard from './ScoreCard';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 function ResultsDashboard({ results }) {
   const [isExporting, setIsExporting] = useState(false);
@@ -17,7 +18,7 @@ function ResultsDashboard({ results }) {
       setIsExporting(true);
       
       const response = await axios.post(
-        'http://localhost:5000/api/export-pdf',
+        `${API_URL}/api/export-pdf`,
         results,
         {
           responseType: 'blob',

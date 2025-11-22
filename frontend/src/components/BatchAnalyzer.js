@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 function BatchAnalyzer() {
   const [urls, setUrls] = useState('');
@@ -17,7 +18,7 @@ function BatchAnalyzer() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/batch/create', {
+      const response = await axios.post(`${API_URL}/api/batch/create`, {
         name: batchName || `Batch Analysis ${new Date().toLocaleString()}`,
         urls: urlList
       });
@@ -35,7 +36,7 @@ function BatchAnalyzer() {
 
     for (const url of urlList) {
       try {
-        await axios.post('http://localhost:5000/api/batch/analyze', {
+        await axios.post(`${API_URL}/api/batch/analyze`, {
           batch_id: bId,
           url: url.trim(),
           target_keyword: ''
@@ -45,7 +46,7 @@ function BatchAnalyzer() {
       }
 
       // Fetch updated status
-      const statusRes = await axios.get(`http://localhost:5000/api/batch/status/${bId}`);
+      const statusRes = await axios.get(`${API_URL}/api/batch/status/${bId}`);
       setBatchStatus(statusRes.data);
     }
 

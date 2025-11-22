@@ -1,5 +1,49 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
+
+// Robust markdown parser with proper HTML tag handling
+const parseMarkdown = (text) => {
+  if (!text) return '';
+  
+  // Step 1: Remove embedded style attributes that Gemini adds
+  let cleaned = text
+    .replace(/"[^"]*font-[^"]*"/g, '')  // Remove "font-weight: 600; color: #xxx;"
+    .replace(/"[^"]*background-color[^"]*"/g, '')  // Remove background style strings
+    .replace(/"[^"]*style[^"]*"/g, '')  // Remove any style strings
+    .replace(/^---+\s*/gm, '')  // Remove ---
+    .replace(/^###\s+/gm, '')   // Remove ###
+    .replace(/^##\s+/gm, '')    // Remove ##
+    .replace(/^#\s+/gm, '')     // Remove #
+    .trim();
+  
+  // Step 2: Apply proper HTML formatting
+  let html = cleaned;
+  
+  // 1. Code blocks first (so they don't interfere with other patterns): `code`
+  html = html.replace(/`([^`]+)`/g, '<code style="background-color: #f3e8ff; color: #7c3aed; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em;">$1</code>');
+  
+  // 2. Bold text: **text**
+  html = html.replace(/\*\*([^*]+?)\*\*/g, '<strong style="font-weight: 600; color: #1e293b;">$1</strong>');
+  
+  // 3. Italic text: *text* (but not bullet points at start of line or **text**)
+  html = html.replace(/([^*\n])\*([^*\s][^*]*?)\*/g, '$1<em style="font-style: italic; color: #475569;">$2</em>');
+  
+  // 4. Quoted text: "text"
+  html = html.replace(/"([^"]+?)"/g, '<span style="font-style: italic; color: #64748b;">"$1"</span>');
+  
+  // 5. Numbered list items: 1. text, 2. text
+  html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin-left: 1.5rem; margin-bottom: 0.75rem;"><span style="font-weight: 600; color: #7c3aed; margin-right: 0.5rem;">$1.</span>$2</div>');
+  
+  // 6. Bullet points: * text (at line start only)
+  html = html.replace(/^\*\s+(.+)$/gm, '<div style="margin-left: 2rem; margin-bottom: 0.5rem; color: #475569;"><span style="color: #a78bfa; margin-right: 0.5rem;">•</span>$1</div>');
+  
+  // 7. Convert line breaks to proper spacing
+  html = html.replace(/\n\n+/g, '<br/><br/>');
+  html = html.replace(/\n/g, ' ');
+  
+  return html;
+};
 
 function AISuggestions({ content, analysisResults }) {
   const [suggestions, setSuggestions] = useState(null);
@@ -17,7 +61,7 @@ function AISuggestions({ content, analysisResults }) {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/ai/suggestions', {
+      const response = await axios.post(`${API_URL}/api/ai/suggestions`, {
         content,
         analysis_results: analysisResults
       });
@@ -39,7 +83,7 @@ function AISuggestions({ content, analysisResults }) {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/ai/rewrite', {
+      const response = await axios.post(`${API_URL}/api/ai/rewrite`, {
         text: selectedText,
         goal: rewriteGoal,
         context: content
@@ -133,7 +177,10 @@ function AISuggestions({ content, analysisResults }) {
                       {suggestions.priority_actions.map((action, idx) => (
                         <div key={idx} className="bg-white p-4 rounded-lg border border-orange-200">
                           <div className="font-semibold text-orange-900 mb-1">{action.area}</div>
-                          <div className="text-sm text-slate-700 mb-2">{action.action}</div>
+                          <div 
+                            className="text-sm text-slate-700 mb-2"
+                            dangerouslySetInnerHTML={{ __html: parseMarkdown(action.action) }}
+                          />
                           <div className="flex gap-2 text-xs">
                             <span className="px-2 py-1 bg-red-100 text-red-700 rounded">Impact: {action.impact}</span>
                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">Effort: {action.effort}</span>
@@ -185,9 +232,11 @@ function AISuggestions({ content, analysisResults }) {
                         </h5>
                         <ul className="space-y-2">
                           {sugg.ai_suggestions.map((rec, i) => (
-                            <li key={i} className="text-sm text-slate-700 pl-3 border-l-2 border-purple-400">
-                              {rec}
-                            </li>
+                            <li 
+                              key={i} 
+                              className="text-sm text-slate-700 pl-4 py-3 border-l-3 border-purple-400 bg-purple-50/30 rounded-r leading-relaxed"
+                              dangerouslySetInnerHTML={{ __html: parseMarkdown(rec) }}
+                            />
                           ))}
                         </ul>
                       </div>
@@ -261,7 +310,10 @@ function AISuggestions({ content, analysisResults }) {
                   Copy
                 </button>
               </div>
-              <p className="text-slate-700 whitespace-pre-wrap">{rewrittenText}</p>
+              <div 
+                className="text-slate-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: parseMarkdown(rewrittenText) }}
+              />
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 function KeywordResearch({ targetKeyword }) {
   const [keywords, setKeywords] = useState(null);
@@ -16,7 +17,7 @@ function KeywordResearch({ targetKeyword }) {
       setLoading(true);
       setError(null);
 
-      const response = await axios.post('http://localhost:5000/api/research-keywords', {
+      const response = await axios.post(`${API_URL}/api/research-keywords`, {
         keyword: targetKeyword,
         max_results: 20
       });

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 function AdminPanel() {
   const [clearing, setClearing] = useState(false);
@@ -14,7 +15,7 @@ function AdminPanel() {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/clear-data');
+      const response = await axios.post(`${API_URL}/api/clear-data`);
       setMessage({
         type: 'success',
         text: response.data.message || 'All data has been cleared successfully'
