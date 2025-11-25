@@ -10,7 +10,9 @@
 
 ## Video Demo
 
-**Watch the complete demo here:** [Demo Video Link](#) *(Upload your 2-4 minute demo video and add link)*
+**Watch the complete demo here:** [Demo Video — 2-4 minute demo](https://youtu.be/OuAdSPEpF_s)
+
+Short demo (2-4 minutes) showcasing the key flows — analysis, AI suggestions, batch processing, and PDF export.
 
 The video demonstrates:
 - Problem statement and real-world use case
